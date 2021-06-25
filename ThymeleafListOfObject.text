@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" th:replace="base::layout(~{::body})" >
+<head>
+	<meta charset="UTF-8" />
+	<title>Signup</title>
+	- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<style type="text/css">
+    .success{
+    	border-color: #2ecc71;
+    }
+    </style>
+    
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+							Cose For Binding List Of Object To Thymeleaf									HTML
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+</head>
+<body>
+
+	<section >
+		<div class="container" >
+			<div class="row">
+				
+				<div class="col-md-6 offset-md-3">
+				
+					<div class="my-reg-form">
+					
+						
+								
+						<h2 class="text-center">Register Here !!</h2>
+						
+								<!-- Note *********
+										here i use
+										th:value="${customer?.name}"  
+										instead of th:value="${customer.name}"
+								 -->		
+																	
+								<form id="form" class="row g-3"  th:action="@{/register}" th:object="${user}" th:method="post"  >
+									<script type="text/javascript">
+									console.log("Hello world!");
+									</script>
+									
+												<p> error count <span th:text="${res?.getFieldErrorCount('firstName')}" ></span> </p>				
+									
+									 <div class="col-md-6 ">
+									    <label for="inputName" class="form-label">First Name</label>
+									    <input  name="firstName" th:value="${user?.firstName}" type="text" class="form-control"  id="firstName" th:classappend="${res?.getFieldErrorCount('firstName')} ? 'is-invalid':'' " > 
+										<div id="fName" class="invalid-feedback"   >
+      										<span></span>
+    									</div> 
+									    
+									  </div>
+								
+									 <div class="col-md-6" >
+									    <label for="inputLastName" class="form-label">Last Name</label>
+									    <input  name="lastName" th:value="${user?.lastName}" type="text" class="form-control" id="lastName">
+									     <div id="fName" class="invalid-feedback"   >
+      										<span></span>
+    									</div> 
+									  </div>
+											
+									  <div class="col-md-6">
+									    <label for="inputEmail4" class="form-label">Email</label>
+									    <input  name="email" th:value="${user?.email}" type="email" class="form-control" id="email">
+									      <div id="fName" class="invalid-feedback"   >
+      										<span></span>
+    									</div>
+									  </div>
+									  
+									  <div class="col-md-6">
+									    <label for="inputPassword4" class="form-label">Password</label>
+									    <input  name="password" th:value="${user?.password}" type="password" class="form-control" id="password">
+									    <div id="fName" class="invalid-feedback"   >
+      										<span></span>
+    									</div> 
+									  </div>
+									  
+										<div class="col-12">
+									   	<table style="width:100%">
+											  <tr>
+											    <th>ID</th>
+											    <th>Address</th>
+											    <th>City</th>
+											  </tr>
+											 <tr th:each="add,itemStat : ${user.addresses}" >
+												    <td>
+												       <input th:field="*{addresses[__${itemStat.index}__].id}"/>
+												    </td>
+												    <td>
+												       <input th:field="*{addresses[__${itemStat.index}__].addr}"/>
+												    </td>
+												    <td>
+												       <input th:field="*{addresses[__${itemStat.index}__].city}"/>
+												    </td>
+												</tr>
+											  
+											</table>
+									    </div>
+									  </div>					
+									
+									  <div class="col-md-4 offset-md-4">
+									    <button type="submit" class="btn btn-primary">Submit</button>
+									    <button type="reset" class="btn btn-danger">Reset</button>
+									  </div>
+								</form>
+							
+						
+						
+						
+					
+					</div>
+					
+				
+				</div>	
+				
+		
+			</div> 
+		</div>
+	
+	
+	</section>
+
+	
+
+</body>
+</html>
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+							Controller
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+package com.dhakad;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.dhakad.service.UserService;
+
+
+
+
+@Controller
+public class Testing {
+
+	@Autowired
+	 private UserService userService; 
+	
+	@RequestMapping("/")
+	public String homePage() {
+		return "home.html";
+	}
+	
+	@RequestMapping("/signup")
+	public String signupPage() {
+		return "signup.html";
+	}
+	@RequestMapping("/testform")
+	public String testFormPage(Model model) {
+		// Address a1=new Address(2, "ind", "iore");
+		Address a2=new Address(2, "bheswa", "indore");
+		Address a1=new Address(7, "sarangpur", "bhopal");
+		
+		List<Address> ad=List.of(a2,a1);
+		
+		User user=new User();
+		user.setAddress(ad);
+		model.addAttribute("user", user);
+		model.addAttribute("arr", ad);
+		return "testform.html";
+	}
+
+	
+		
+	@PostMapping("/register")
+	public String doRegistration(@ModelAttribute("user") User user, Model model){
+	
+	/*	
+		Address a1=new Address(1, "indore", "indore");
+		Address a2=new Address(2, "ind", "iore");
+		List<Address> ad=List.of(a1,a2);
+	
+	*/	user.setRole("user");
+	//	
+	
+		System.out.println("typer"+user.getEmail().getClass().getName());
+		System.out.println(".......................");
+		System.out.println("typer"+user.getAddresses().getClass().getName());
+		System.out.println(".......................");
+		System.out.println("typer"+user.getClass().getName());
+		System.out.println(".......................");
+		//System.out.println("typer"+user.getAddresses().get(0) .getClass().getName());
+		user.setAddress(user.getAddresses());
+		System.out.println("user : "+user.toString());
+		//user.setAddress(ad);
+		//userService.adduser(user);
+		System.out.println("user : "+user.toString());
+		model.addAttribute("user", user);
+		return "testform.html";
+	}
+	
+	
+	
+	
+	
+	
+}
+
+
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+							Address Controller type mis match error
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+package com.dhakad;
+
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
+
+
+
+
+@Component
+public class AddressConverter implements Converter<String,Address> {
+
+	@Override
+	public Address convert(String id) {
+		System.out.println(" trying convert id : "+id+" to Address");
+		
+		return null;
+	}
+
+
+
+
+
+}
+
+
+
+
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+							User entity
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+					
+
+
+package com.dhakad;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+
+
+@Entity
+public class User {
+
+	@Id
+	private String email;
+	private String firstName;
+	private String lastName;
+	private String password;
+	private String role;
+	
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "email")
+	private List<Address> addresses= new ArrayList<Address>();
+	
+	
+	public User() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public User(String email) {
+		super();
+		this.email = email;
+	}
+
+
+	public User(List<Address> addresses) {
+		super();
+		this.addresses = addresses;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+
+	public String getLastName() {
+		return lastName;
+	}
+
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+	public String getRole() {
+		return role;
+	}
+
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+
+	public List<Address> getAddresses() {
+		return addresses;
+	}
+
+
+	public void setAddress(List<Address> addresses) {
+		this.addresses = addresses;
+	}
+
+
+	public User(String email, String firstName, String lastName, String password, String role, List<Address> addresses) {
+		super();
+		this.email = email;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.password = password;
+		this.role = role;
+		this.addresses = addresses;
+	}
+
+
+	
+
+	@Override
+	public String toString() {
+		return "User [email=" + email + ", firstName=" + firstName + ", lastName=" + lastName + ", password=" + password
+				+ ", role=" + role + ", addresses=" + addresses + "]";
+	}
+
+	
+
+	
+	
+}
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+							Address entity
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+
+
+package com.dhakad;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Address {
+
+	@Id
+	private int id;
+	private String addr;
+	private String city;
+	public Address() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public Address(int id) {
+		super();
+		this.id = id;
+	}
+	public Address(int id, String addr, String city) {
+		super();
+		this.id = id;
+		this.addr = addr;
+		this.city = city;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getAddr() {
+		return addr;
+	}
+	public void setAddr(String addr) {
+		this.addr = addr;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
+	}
+	@Override
+	public String toString() {
+		return "Address [id=" + id + ", addr=" + addr + ", city=" + city + "]";
+	}
+
+	
+	
+	
+	
+	
+}
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+							User entity
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
